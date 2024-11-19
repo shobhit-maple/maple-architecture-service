@@ -1,0 +1,39 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: maple-architecture-neo4j
+  namespace: maple-system
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: maple-architecture-neo4j
+  template:
+    metadata:
+      labels:
+        app: maple-architecture-neo4j
+    spec:
+      containers:
+        - name: maple-architecture-neo4j
+          image: neo4j:latest
+          ports:
+            - containerPort: 7474
+            - containerPort: 7687
+          env:
+            - name: NEO4J_dbms_security_auth__enabled
+              value: "true"
+            - name: NEO4J_AUTH
+              valueFrom:
+                secretKeyRef:
+                  name: maple-architecture-secrets
+                  key: NEO4J_AUTH
+          volumeMounts:
+            - mountPath: /data
+              name: neo4j-data
+            - mountPath: /logs
+              name: neo4j-logs
+      volumes:
+        - name: neo4j-data
+          emptyDir: {}
+        - name: neo4j-logs
+          emptyDir: {}
